@@ -1,12 +1,7 @@
-package com.wipro.bank.entity;
+package com.wipro.bank.dto;
 
 import java.time.LocalDate;
 
-import javax.persistence.Entity;
-
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,19 +12,16 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 
+public class TransactionDto {
 
-@Entity
-public class Transaction {
-	
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int transactionId;
-	
+
 	private String transactionType;
 	private double amount;
 	private LocalDate transactionDate;
 	
-	
-	
+	private String accountNumber;
+
+
 
 }

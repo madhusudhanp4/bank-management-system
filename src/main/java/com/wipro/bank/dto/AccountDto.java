@@ -1,32 +1,28 @@
-package com.wipro.bank.entity;
+package com.wipro.bank.dto;
 
-import javax.persistence.Entity;
-
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 
+public class AccountDto {
 
-@Entity
-public class Account {
-	
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int accountId;
-	
+
 	private String accountNumber;
 	private String accountType;
 	private double balance;
 	private String branchName;
 	
+	private int customerId;
+
+
+
+
+
 }

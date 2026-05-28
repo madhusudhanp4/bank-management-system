@@ -12,6 +12,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+
+
 @Entity
 public class Loan {
 
@@ -22,51 +28,6 @@ public class Loan {
 	private String loanType;
 	private double loanAmount;
 	private double interestRate;
-	
-	
-	
-	public Loan() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
-	
-	
-	
-	public Loan(int loanId, String loanType, double loanAmount, double interestRate) {
-		super();
-		this.loanId = loanId;
-		this.loanType = loanType;
-		this.loanAmount = loanAmount;
-		this.interestRate = interestRate;
-	}
-
-
-
-
-	public int getLoanId() {
-		return loanId;
-	}
-	public void setLoanId(int loanId) {
-		this.loanId = loanId;
-	}
-	public String getLoanType() {
-		return loanType;
-	}
-	public void setLoanType(String loanType) {
-		this.loanType = loanType;
-	}
-	public double getLoanAmount() {
-		return loanAmount;
-	}
-	public void setLoanAmount(double loanAmount) {
-		this.loanAmount = loanAmount;
-	}
-	public double getInterestRate() {
-		return interestRate;
-	}
-	public void setInterestRate(double interestRate) {
-		this.interestRate = interestRate;
-	}
 	
 	
 	

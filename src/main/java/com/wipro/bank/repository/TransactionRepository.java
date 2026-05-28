@@ -1,5 +1,9 @@
 package com.wipro.bank.repository;
 
-public class TransactionRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.wipro.bank.entity.Transaction;
+
+public interface TransactionRepository extends JpaRepository<Transaction, Integer> {
 
 }
