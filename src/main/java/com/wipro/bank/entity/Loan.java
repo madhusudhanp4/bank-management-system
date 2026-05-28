@@ -23,18 +23,21 @@ public class Loan {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int loanId;
-	
+
 	private String loanType;
 	private double loanAmount;
 	private double interestRate;
-    private String loanStatus;
-
-	
-    @ManyToOne
-    @JoinColumn(name = "customer_id")
-    private Customer customer;
 
 
-	
-	
+	// Status: ACTIVE / CLOSED
+	private String loanStatus;
+
+	// Many loans can belong to one customer
+	@ManyToOne
+	@JoinColumn(name = "customer_id")
+	private Customer customer;
+
+
+
+
 }

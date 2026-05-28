@@ -22,19 +22,24 @@ public class LoanServiceImpl implements ILoanService {
     @Autowired
     private CustomerRepository customerRepo;
 
+    
+    // Apply loan request based on customer eligibility
     @Override
-    public String processLoan(LoanDto dto) {
+    public String applyLoan(LoanDto dto) {
 
+        // Check if customer exists
         Customer customer = customerRepo.findById(dto.getCustomerId()).orElse(null);
 
         if (customer == null)
             return "Customer not found";
 
+        // Fetch all loans of the customer
         List<Loan> list = loanRepo.findByCustomerCustomerId(dto.getCustomerId());
 
         double totalLoan = 0;
         int activeLoans = 0;
 
+        // Calculate active loans and total amount
         for (Loan loan : list) {
             if ("ACTIVE".equals(loan.getLoanStatus())) {
                 totalLoan += loan.getLoanAmount();
@@ -42,42 +47,50 @@ public class LoanServiceImpl implements ILoanService {
             }
         }
 
+        // Business rule: total loan limit
         if (totalLoan > 500000)
             return "Loan Rejected: High existing loans";
 
+        // Business rule: max active loans
         if (activeLoans >= 3)
             return "Loan Rejected: Too many active loans";
 
-        //  use mapper
+        // Convert DTO to Entity before saving
         Loan loan = LoanMapper.toEntity(dto, customer);
 
         loanRepo.save(loan);
 
-        return "Loan Approved ✅";
+        return "Loan Approved ";
     }
 
+    
+    // Get complete loan history of customer
     @Override
-    public List<LoanDto> getCustomerLoans(int customerId) {
+    public List<LoanDto> getLoanHistory(int customerId) {
 
         List<Loan> list = loanRepo.findByCustomerCustomerId(customerId);
-
         List<LoanDto> result = new ArrayList<>();
 
         for (Loan loan : list) {
-            result.add(LoanMapper.toDto(loan)); // ✅ clean
+
+            // Convert entity to DTO
+            result.add(LoanMapper.toDto(loan));
         }
 
         return result;
     }
 
+    
+    // Get total outstanding active loan amount
     @Override
-    public double getTotalActiveLoanAmount(int customerId) {
+    public double getTotalOutstandingLoan(int customerId) {
 
         List<Loan> list = loanRepo.findByCustomerCustomerId(customerId);
 
         double total = 0;
 
         for (Loan loan : list) {
+
             if ("ACTIVE".equals(loan.getLoanStatus())) {
                 total += loan.getLoanAmount();
             }
@@ -86,6 +99,8 @@ public class LoanServiceImpl implements ILoanService {
         return total;
     }
 
+    
+    // Close loan (only after repayment - logic can be enhanced later)
     @Override
     public String closeLoan(int loanId) {
 
@@ -97,24 +112,28 @@ public class LoanServiceImpl implements ILoanService {
         if ("CLOSED".equals(loan.getLoanStatus()))
             return "Loan already closed";
 
+        // Updating existing entity status (not creating new one)
         loan.setLoanStatus("CLOSED");
 
         loanRepo.save(loan);
 
-        return "Loan closed successfully ✅";
+        return "Loan closed successfully ";
     }
 
+    
+    // Get only active loans of customer
     @Override
     public List<LoanDto> getActiveLoans(int customerId) {
 
         List<Loan> list = loanRepo.findByCustomerCustomerId(customerId);
-
         List<LoanDto> result = new ArrayList<>();
 
         for (Loan loan : list) {
 
             if ("ACTIVE".equals(loan.getLoanStatus())) {
-                result.add(LoanMapper.toDto(loan)); // ✅ clean
+
+                // Convert active entity to DTO
+                result.add(LoanMapper.toDto(loan));
             }
         }
 

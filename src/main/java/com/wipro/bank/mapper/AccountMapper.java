@@ -24,7 +24,6 @@ public class AccountMapper {
 
         Account acc = new Account();
 
-        acc.setAccountNumber(dto.getAccountNumber());
         acc.setAccountType(dto.getAccountType());
         acc.setBalance(dto.getBalance());
         acc.setBranchName(dto.getBranchName());

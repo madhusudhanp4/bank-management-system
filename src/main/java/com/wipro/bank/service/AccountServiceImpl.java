@@ -16,98 +16,122 @@ import com.wipro.bank.repository.CustomerRepository;
 @Service
 public class AccountServiceImpl implements IAccountService {
 
-    @Autowired
-    private AccountRepository accountRepo;
 
-    @Autowired
-    private CustomerRepository customerRepo;
+	@Autowired
+	private AccountRepository accountRepo;
 
-    @Override
-    public AccountDto createAccount(AccountDto dto) {
+	@Autowired
+	private CustomerRepository customerRepo;
 
-        Customer customer = customerRepo.findById(dto.getCustomerId()).orElse(null);
 
-        if (customer == null) return null;
+	//CREATE NEW ACCOUNT FOR EXISTING CUSTOMER
+	@Override
+	public AccountDto createAccount(AccountDto dto) {
 
-        // use mapper
-        Account acc = AccountMapper.toEntity(dto, customer);
+		Customer customer = customerRepo.findById(dto.getCustomerId()).orElse(null);
 
-        Account saved = accountRepo.save(acc);
+		if (customer == null) return null; //Customer doesnot exist
 
-        return AccountMapper.toDto(saved);
-    }
+		// use mapper
+		Account acc = AccountMapper.toEntity(dto, customer);
 
-    @Override
-    public AccountDto getAccountByNumber(String accountNumber) {
+		// Generate account number automatically (user should not provide this)
+		String accNumber = "ACC" + System.currentTimeMillis();
+		acc.setAccountNumber(accNumber);
 
-        Account acc = accountRepo.findByAccountNumber(accountNumber);
+		Account saved = accountRepo.save(acc);
 
-        if (acc == null || "CLOSED".equals(acc.getStatus()))
-            return null;
+		return AccountMapper.toDto(saved);
+	}
 
-        return AccountMapper.toDto(acc);
-    }
 
-    @Override
-    public List<AccountDto> getAllAccounts() {
+	//FETCH account details using account number
+	@Override
+	public AccountDto getAccountByNumber(String accountNumber) {
 
-        List<Account> list = accountRepo.findAll();
-        List<AccountDto> result = new ArrayList<>();
+		Account acc = accountRepo.findByAccountNumber(accountNumber);
 
-        for (Account acc : list) {
+		if (acc == null || "CLOSED".equals(acc.getStatus()))
+			return null;
 
-            if ("CLOSED".equals(acc.getStatus()))
-                continue;
+		return AccountMapper.toDto(acc);
+	}
 
-            result.add(AccountMapper.toDto(acc)); // ✅ clean
-        }
 
-        return result;
-    }
+	//Fetch all active accounts
+	@Override
+	public List<AccountDto> getAllAccounts() {
 
-    @Override
-    public double getBalancebyNumber(String accountNumber) {
+		List<Account> list = accountRepo.findAll();
+		List<AccountDto> result = new ArrayList<>();
 
-        Account acc = accountRepo.findByAccountNumber(accountNumber);
+		for (Account acc : list) {
 
-        if (acc == null)
-            return 0;
+			if ("CLOSED".equals(acc.getStatus()))
+				continue;
 
-        return acc.getBalance();
-    }
+			result.add(AccountMapper.toDto(acc)); 
+		}
 
-    @Override
-    public AccountDto updateAccountDetails(String accountNumber, AccountDto dto) {
+		return result;
+	}
 
-        Account acc = accountRepo.findByAccountNumber(accountNumber);
 
-        if (acc == null || "CLOSED".equals(acc.getStatus()))
-            return null;
+	//Get Current balance of account
+	@Override
+	public double getBalancebyNumber(String accountNumber) {
 
-        acc.setAccountType(dto.getAccountType());
-        acc.setBalance(dto.getBalance());
-        acc.setBranchName(dto.getBranchName());
+		Account acc = accountRepo.findByAccountNumber(accountNumber);
 
-        Account updated = accountRepo.save(acc);
+		if (acc == null)
+			return 0;
 
-        return AccountMapper.toDto(updated);
-    }
+		return acc.getBalance();
+	}
 
-    @Override
-    public String closeAccount(String accountNumber) {
 
-        Account acc = accountRepo.findByAccountNumber(accountNumber);
+	//Update account details
+	@Override
+	public AccountDto updateAccountDetails(String accountNumber, AccountDto dto) {
 
-        if (acc == null)
-            return "Account not found";
+		Account acc = accountRepo.findByAccountNumber(accountNumber);
 
-        if ("CLOSED".equals(acc.getStatus()))
-            return "Already closed";
+		if (acc == null || "CLOSED".equals(acc.getStatus()))
+			return null;
 
-        acc.setStatus("CLOSED");
+		/*
+		 * Since account already exists,
+		 * update only required fields
+		 * mapper is not used here to avoid overwriting existing data
+		 * 
+		 */
 
-        accountRepo.save(acc);
+		acc.setAccountType(dto.getAccountType());
+		acc.setBalance(dto.getBalance());
+		acc.setBranchName(dto.getBranchName());
 
-        return "Account closed successfully ✅";
-    }
+		Account updated = accountRepo.save(acc);
+
+		return AccountMapper.toDto(updated);
+	}
+
+
+	//Close account
+	@Override
+	public String closeAccount(String accountNumber) {
+
+		Account acc = accountRepo.findByAccountNumber(accountNumber);
+
+		if (acc == null)
+			return "Account not found";
+
+		if ("CLOSED".equals(acc.getStatus()))
+			return "Already closed";
+
+		acc.setStatus("CLOSED");
+
+		accountRepo.save(acc);
+
+		return "Account closed successfully ";
+	}
 }
