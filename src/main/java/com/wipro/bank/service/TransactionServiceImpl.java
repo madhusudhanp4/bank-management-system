@@ -10,106 +10,80 @@ import org.springframework.stereotype.Service;
 import com.wipro.bank.dto.TransactionDto;
 import com.wipro.bank.entity.Account;
 import com.wipro.bank.entity.Transaction;
+import com.wipro.bank.mapper.TransactionMapper;
 import com.wipro.bank.repository.AccountRepository;
 import com.wipro.bank.repository.TransactionRepository;
 
 @Service
 public class TransactionServiceImpl implements ITransactionService {
 
+    @Autowired
+    private TransactionRepository txnRepo;
+    
+    //Repo to interact with account
+    @Autowired
+    private AccountRepository accountRepo;
 
-	@Autowired
-	private TransactionRepository txnRepo;
-	
+    //Deposit money to account
+    @Override
+    public String deposit(String accountNumber, double amount) {
 
-	//Repo to interact with account
-	@Autowired
-	private AccountRepository accountRepo;
+        Account acc = accountRepo.findByAccountNumber(accountNumber);
 
+        if (acc == null) return "Account not found";
 
-	//Deposit money to account
-	@Override
-	public String deposit(String accountNumber, double amount) {
-		// TODO Auto-generated method stub
+        acc.setBalance(acc.getBalance() + amount);
+        accountRepo.save(acc);
 
-		//Find account by account number
-		Account acc = accountRepo.findByAccountNumber(accountNumber);
+        Transaction txn = new Transaction();
+        txn.setTransactionType("DEPOSIT");
+        txn.setAmount(amount);
+        txn.setTransactionDate(LocalDate.now());
+        txn.setAccount(acc);
 
-		if (acc == null) return "Account not found";
+        txnRepo.save(txn);
 
-		//If account found, increase the balance
-		acc.setBalance(acc.getBalance() + amount);
-		accountRepo.save(acc);
+        return "Amount deposited";
+    }
 
-		
-		//Creating the transaction record
-		Transaction txn = new Transaction();
-		txn.setTransactionType("DEPOSIT");
-		txn.setAmount(amount);
-		txn.setTransactionDate(LocalDate.now());
+    //WITHDRAW MONEY FROM ACCOUNT
+    @Override
+    public String withdraw(String accountNumber, double amount) {
 
-		//Link the transaction to account
-		txn.setAccount(acc);
+        Account acc = accountRepo.findByAccountNumber(accountNumber);
 
-		txnRepo.save(txn);
+        if (acc == null) return "Account not found";
 
-		return "Amount deposited";
+        if (acc.getBalance() < amount) {
+            return "Insufficient balance";
+        }
 
-	}
+        acc.setBalance(acc.getBalance() - amount);
+        accountRepo.save(acc);
 
-	//WITHDRAW MONEY FROM ACCOUNT
-	@Override
-	public String withdraw(String accountNumber, double amount) {
-	
+        Transaction txn = new Transaction();
+        txn.setTransactionType("WITHDRAW");
+        txn.setAmount(amount);
+        txn.setTransactionDate(LocalDate.now());
+        txn.setAccount(acc);
 
-		Account acc = accountRepo.findByAccountNumber(accountNumber);
+        txnRepo.save(txn);
 
-		if (acc == null) return "Account not found";
+        return "Amount withdrawn";
+    }
 
-		if (acc.getBalance() < amount) {
-			return "Insufficient balance";
-		}
+    //GET TRANSACTION BY ACCOUNT NUMBER
+    @Override
+    public List<TransactionDto> getTransactionsByAccount(String accountNumber) {
 
-		// update balance
-		acc.setBalance(acc.getBalance() - amount);
-		accountRepo.save(acc);
+        List<Transaction> list = txnRepo.findByAccountAccountNumber(accountNumber);
 
-		// save transaction
-		Transaction txn = new Transaction();
-		txn.setTransactionType("WITHDRAW");
-		txn.setAmount(amount);
-		txn.setTransactionDate(LocalDate.now());
+        List<TransactionDto> result = new ArrayList<>();
 
-		txnRepo.save(txn);
+        for (Transaction t : list) {
+            result.add(TransactionMapper.toDto(t));
+        }
 
-		return "Amount withdrawn";
-
-	}
-
-	
-	//GET TRANSACTION BY ACCOUNT NUMBER
-	@Override
-	public List<TransactionDto> getTransactionsByAccount(String accountNumber) {
-		// TODO Auto-generated method stub
-
-
-		List<Transaction> list = txnRepo.findAll();
-		List<TransactionDto> result = new ArrayList<>();
-
-		for (Transaction t : list) {
-
-			TransactionDto dto = new TransactionDto();
-
-			dto.setTransactionId(t.getTransactionId());
-			dto.setTransactionType(t.getTransactionType());
-			dto.setAmount(t.getAmount());
-			dto.setTransactionDate(t.getTransactionDate());
-			dto.setAccountNumber(accountNumber);
-
-			result.add(dto);
-		}
-
-		return result;
-
-	}
-
+        return result;
+    }
 }

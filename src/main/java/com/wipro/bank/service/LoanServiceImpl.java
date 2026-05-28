@@ -9,10 +9,10 @@ import org.springframework.stereotype.Service;
 import com.wipro.bank.dto.LoanDto;
 import com.wipro.bank.entity.Customer;
 import com.wipro.bank.entity.Loan;
+import com.wipro.bank.mapper.LoanMapper;
 import com.wipro.bank.repository.CustomerRepository;
 import com.wipro.bank.repository.LoanRepository;
 
-//  Loan service (bank-controlled operations)
 @Service
 public class LoanServiceImpl implements ILoanService {
 
@@ -22,7 +22,6 @@ public class LoanServiceImpl implements ILoanService {
     @Autowired
     private CustomerRepository customerRepo;
 
-    
     @Override
     public String processLoan(LoanDto dto) {
 
@@ -31,7 +30,6 @@ public class LoanServiceImpl implements ILoanService {
         if (customer == null)
             return "Customer not found";
 
-        // Existing loans
         List<Loan> list = loanRepo.findByCustomerCustomerId(dto.getCustomerId());
 
         double totalLoan = 0;
@@ -44,30 +42,20 @@ public class LoanServiceImpl implements ILoanService {
             }
         }
 
-        //  Rule 1
         if (totalLoan > 500000)
             return "Loan Rejected: High existing loans";
 
-        //  Rule 2
         if (activeLoans >= 3)
             return "Loan Rejected: Too many active loans";
 
-        //  Create loan (approved)
-        Loan loan = new Loan();
-
-        loan.setLoanType(dto.getLoanType());
-        loan.setLoanAmount(dto.getLoanAmount());
-        loan.setInterestRate(dto.getInterestRate());
-
-        loan.setCustomer(customer);
-        loan.setLoanStatus("ACTIVE");
+        //  use mapper
+        Loan loan = LoanMapper.toEntity(dto, customer);
 
         loanRepo.save(loan);
 
-        return "Loan Approved ";
+        return "Loan Approved ✅";
     }
 
-   
     @Override
     public List<LoanDto> getCustomerLoans(int customerId) {
 
@@ -76,23 +64,12 @@ public class LoanServiceImpl implements ILoanService {
         List<LoanDto> result = new ArrayList<>();
 
         for (Loan loan : list) {
-
-            LoanDto dto = new LoanDto();
-
-            dto.setLoanId(loan.getLoanId());
-            dto.setLoanType(loan.getLoanType());
-            dto.setLoanAmount(loan.getLoanAmount());
-            dto.setInterestRate(loan.getInterestRate());
-
-            dto.setCustomerId(loan.getCustomer().getCustomerId());
-
-            result.add(dto);
+            result.add(LoanMapper.toDto(loan)); // ✅ clean
         }
 
         return result;
     }
 
-   
     @Override
     public double getTotalActiveLoanAmount(int customerId) {
 
@@ -109,7 +86,6 @@ public class LoanServiceImpl implements ILoanService {
         return total;
     }
 
-    
     @Override
     public String closeLoan(int loanId) {
 
@@ -128,7 +104,6 @@ public class LoanServiceImpl implements ILoanService {
         return "Loan closed successfully ✅";
     }
 
- 
     @Override
     public List<LoanDto> getActiveLoans(int customerId) {
 
@@ -139,17 +114,7 @@ public class LoanServiceImpl implements ILoanService {
         for (Loan loan : list) {
 
             if ("ACTIVE".equals(loan.getLoanStatus())) {
-
-                LoanDto dto = new LoanDto();
-
-                dto.setLoanId(loan.getLoanId());
-                dto.setLoanType(loan.getLoanType());
-                dto.setLoanAmount(loan.getLoanAmount());
-                dto.setInterestRate(loan.getInterestRate());
-
-                dto.setCustomerId(loan.getCustomer().getCustomerId());
-
-                result.add(dto);
+                result.add(LoanMapper.toDto(loan)); // ✅ clean
             }
         }
 

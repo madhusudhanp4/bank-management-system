@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.wipro.bank.dto.AccountDto;
 import com.wipro.bank.entity.Account;
 import com.wipro.bank.entity.Customer;
+import com.wipro.bank.mapper.AccountMapper;
 import com.wipro.bank.repository.AccountRepository;
 import com.wipro.bank.repository.CustomerRepository;
 
@@ -21,32 +22,20 @@ public class AccountServiceImpl implements IAccountService {
     @Autowired
     private CustomerRepository customerRepo;
 
-  
     @Override
     public AccountDto createAccount(AccountDto dto) {
 
-        // fetch customer
         Customer customer = customerRepo.findById(dto.getCustomerId()).orElse(null);
 
         if (customer == null) return null;
 
-        Account acc = new Account();
-
-        acc.setAccountNumber(dto.getAccountNumber());
-        acc.setAccountType(dto.getAccountType());
-        acc.setBalance(dto.getBalance());
-        acc.setBranchName(dto.getBranchName());
-
-        acc.setCustomer(customer);
-        acc.setStatus("ACTIVE"); //  optional field
+        // use mapper
+        Account acc = AccountMapper.toEntity(dto, customer);
 
         Account saved = accountRepo.save(acc);
 
-        dto.setAccountId(saved.getAccountId());
-
-        return dto;
+        return AccountMapper.toDto(saved);
     }
-
 
     @Override
     public AccountDto getAccountByNumber(String accountNumber) {
@@ -56,20 +45,9 @@ public class AccountServiceImpl implements IAccountService {
         if (acc == null || "CLOSED".equals(acc.getStatus()))
             return null;
 
-        AccountDto dto = new AccountDto();
-
-        dto.setAccountId(acc.getAccountId());
-        dto.setAccountNumber(acc.getAccountNumber());
-        dto.setAccountType(acc.getAccountType());
-        dto.setBalance(acc.getBalance());
-        dto.setBranchName(acc.getBranchName());
-
-        dto.setCustomerId(acc.getCustomer().getCustomerId());
-
-        return dto;
+        return AccountMapper.toDto(acc);
     }
 
- 
     @Override
     public List<AccountDto> getAllAccounts() {
 
@@ -81,17 +59,7 @@ public class AccountServiceImpl implements IAccountService {
             if ("CLOSED".equals(acc.getStatus()))
                 continue;
 
-            AccountDto dto = new AccountDto();
-
-            dto.setAccountId(acc.getAccountId());
-            dto.setAccountNumber(acc.getAccountNumber());
-            dto.setAccountType(acc.getAccountType());
-            dto.setBalance(acc.getBalance());
-            dto.setBranchName(acc.getBranchName());
-
-            dto.setCustomerId(acc.getCustomer().getCustomerId());
-
-            result.add(dto);
+            result.add(AccountMapper.toDto(acc)); // ✅ clean
         }
 
         return result;
@@ -102,11 +70,11 @@ public class AccountServiceImpl implements IAccountService {
 
         Account acc = accountRepo.findByAccountNumber(accountNumber);
 
-        if (acc == null) return 0;
+        if (acc == null)
+            return 0;
 
         return acc.getBalance();
     }
-
 
     @Override
     public AccountDto updateAccountDetails(String accountNumber, AccountDto dto) {
@@ -120,11 +88,10 @@ public class AccountServiceImpl implements IAccountService {
         acc.setBalance(dto.getBalance());
         acc.setBranchName(dto.getBranchName());
 
-        accountRepo.save(acc);
+        Account updated = accountRepo.save(acc);
 
-        return dto;
+        return AccountMapper.toDto(updated);
     }
-
 
     @Override
     public String closeAccount(String accountNumber) {

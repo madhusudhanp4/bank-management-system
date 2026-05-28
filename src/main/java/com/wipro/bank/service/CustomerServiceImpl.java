@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.wipro.bank.dto.CustomerDto;
 import com.wipro.bank.entity.Customer;
+import com.wipro.bank.mapper.CustomerMapper;
 import com.wipro.bank.repository.CustomerRepository;
 
 @Service
@@ -19,21 +20,11 @@ public class CustomerServiceImpl implements ICustomerService {
     @Override
     public CustomerDto createCustomer(CustomerDto dto) {
 
-        Customer c = new Customer();
+        Customer customer = CustomerMapper.toEntity(dto);
 
-        c.setCustomerName(dto.getCustomerName());
-        c.setMobile(dto.getMobile());
-        c.setEmail(dto.getEmail());
-        c.setAddress(dto.getAddress());
+        Customer saved = repo.save(customer);
 
-    
-        c.setStatus("ACTIVE");
-
-        Customer saved = repo.save(c);
-
-        dto.setCustomerId(saved.getCustomerId());
-
-        return dto;
+        return CustomerMapper.toDto(saved);
     }
 
     @Override
@@ -44,39 +35,21 @@ public class CustomerServiceImpl implements ICustomerService {
         if (c == null || "CLOSED".equals(c.getStatus()))
             return null;
 
-        CustomerDto dto = new CustomerDto();
-
-        dto.setCustomerId(c.getCustomerId());
-        dto.setCustomerName(c.getCustomerName());
-        dto.setMobile(c.getMobile());
-        dto.setEmail(c.getEmail());
-        dto.setAddress(c.getAddress());
-
-        return dto;
+        return CustomerMapper.toDto(c);
     }
 
     @Override
     public List<CustomerDto> getAllCustomers() {
 
         List<Customer> list = repo.findAll();
-
         List<CustomerDto> result = new ArrayList<>();
 
         for (Customer c : list) {
 
-            // ✅ skip closed customers if needed
             if ("CLOSED".equals(c.getStatus()))
                 continue;
 
-            CustomerDto dto = new CustomerDto();
-
-            dto.setCustomerId(c.getCustomerId());
-            dto.setCustomerName(c.getCustomerName());
-            dto.setMobile(c.getMobile());
-            dto.setEmail(c.getEmail());
-            dto.setAddress(c.getAddress());
-
-            result.add(dto);
+            result.add(CustomerMapper.toDto(c)); // ✅ clean
         }
 
         return result;
@@ -95,11 +68,10 @@ public class CustomerServiceImpl implements ICustomerService {
         c.setEmail(dto.getEmail());
         c.setAddress(dto.getAddress());
 
-        repo.save(c);
+        Customer updated = repo.save(c);
 
-        return dto;
+        return CustomerMapper.toDto(updated);
     }
-
 
     @Override
     public String deleteCustomer(int customerId) {
@@ -112,11 +84,10 @@ public class CustomerServiceImpl implements ICustomerService {
         if ("CLOSED".equals(c.getStatus()))
             return "Customer already closed";
 
-        // ✅ soft delete instead of removing data
         c.setStatus("CLOSED");
 
         repo.save(c);
 
-        return "Customer account closed successfully ✅";
+        return "Customer account closed successfully ";
     }
 }
