@@ -4,125 +4,155 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.wipro.bank.dto.LoanDto;
+import com.wipro.bank.entity.Customer;
 import com.wipro.bank.entity.Loan;
+import com.wipro.bank.repository.CustomerRepository;
 import com.wipro.bank.repository.LoanRepository;
 
-public class LoanServiceImpl  implements ILoanService {
+//  Loan service (bank-controlled operations)
+@Service
+public class LoanServiceImpl implements ILoanService {
 
+    @Autowired
+    private LoanRepository loanRepo;
 
-	@Autowired
-	private LoanRepository loanRepo;
+    @Autowired
+    private CustomerRepository customerRepo;
 
-	@Override
-	public LoanDto createLoan(LoanDto dto) {
-		// TODO Auto-generated method stub
+    
+    @Override
+    public String processLoan(LoanDto dto) {
 
-		Loan loan = new Loan();
+        Customer customer = customerRepo.findById(dto.getCustomerId()).orElse(null);
 
-		loan.setLoanType(dto.getLoanType());
-		loan.setLoanAmount(dto.getLoanAmount());
-		loan.setInterestRate(dto.getInterestRate());
+        if (customer == null)
+            return "Customer not found";
 
-		Loan saved = loanRepo.save(loan);
+        // Existing loans
+        List<Loan> list = loanRepo.findByCustomerCustomerId(dto.getCustomerId());
 
-		dto.setLoanId(saved.getLoanId());
+        double totalLoan = 0;
+        int activeLoans = 0;
 
-		return dto;
+        for (Loan loan : list) {
+            if ("ACTIVE".equals(loan.getLoanStatus())) {
+                totalLoan += loan.getLoanAmount();
+                activeLoans++;
+            }
+        }
 
-	}
+        //  Rule 1
+        if (totalLoan > 500000)
+            return "Loan Rejected: High existing loans";
 
-	@Override
-	public LoanDto getLoanById(int loanId) {
-		// TODO Auto-generated method stub
+        //  Rule 2
+        if (activeLoans >= 3)
+            return "Loan Rejected: Too many active loans";
 
-		Loan loan = loanRepo.findById(loanId).orElse(null);
+        //  Create loan (approved)
+        Loan loan = new Loan();
 
-		if (loan == null) return null;
+        loan.setLoanType(dto.getLoanType());
+        loan.setLoanAmount(dto.getLoanAmount());
+        loan.setInterestRate(dto.getInterestRate());
 
-		LoanDto dto = new LoanDto();
+        loan.setCustomer(customer);
+        loan.setLoanStatus("ACTIVE");
 
-		dto.setLoanId(loan.getLoanId());
-		dto.setLoanType(loan.getLoanType());
-		dto.setLoanAmount(loan.getLoanAmount());
-		dto.setInterestRate(loan.getInterestRate());
+        loanRepo.save(loan);
 
-		return dto;
+        return "Loan Approved ";
+    }
 
-	}
+   
+    @Override
+    public List<LoanDto> getCustomerLoans(int customerId) {
 
-	@Override
-	public List<LoanDto> getAllLoans() {
-		// TODO Auto-generated method stub
+        List<Loan> list = loanRepo.findByCustomerCustomerId(customerId);
 
-		List<Loan> list = loanRepo.findAll();
-		List<LoanDto> result = new ArrayList<>();
+        List<LoanDto> result = new ArrayList<>();
 
-		for (Loan loan : list) {
+        for (Loan loan : list) {
 
-			LoanDto dto = new LoanDto();
+            LoanDto dto = new LoanDto();
 
-			dto.setLoanId(loan.getLoanId());
-			dto.setLoanType(loan.getLoanType());
-			dto.setLoanAmount(loan.getLoanAmount());
-			dto.setInterestRate(loan.getInterestRate());
+            dto.setLoanId(loan.getLoanId());
+            dto.setLoanType(loan.getLoanType());
+            dto.setLoanAmount(loan.getLoanAmount());
+            dto.setInterestRate(loan.getInterestRate());
 
-			result.add(dto);
-		}
+            dto.setCustomerId(loan.getCustomer().getCustomerId());
 
-		return result;
+            result.add(dto);
+        }
 
-	}
+        return result;
+    }
 
-	@Override
-	public List<LoanDto> getLoansByCustomer(int customerId) {
-		// TODO Auto-generated method stub
+   
+    @Override
+    public double getTotalActiveLoanAmount(int customerId) {
 
-		List<Loan> list = loanRepo.findAll();
-		List<LoanDto> result = new java.util.ArrayList<>();
+        List<Loan> list = loanRepo.findByCustomerCustomerId(customerId);
 
-		for (Loan loan : list) {
+        double total = 0;
 
-			LoanDto dto = new LoanDto();
+        for (Loan loan : list) {
+            if ("ACTIVE".equals(loan.getLoanStatus())) {
+                total += loan.getLoanAmount();
+            }
+        }
 
-			dto.setLoanId(loan.getLoanId());
-			dto.setLoanType(loan.getLoanType());
-			dto.setLoanAmount(loan.getLoanAmount());
-			dto.setInterestRate(loan.getInterestRate());
+        return total;
+    }
 
-			result.add(dto);
-		}
+    
+    @Override
+    public String closeLoan(int loanId) {
 
-		return result;
+        Loan loan = loanRepo.findById(loanId).orElse(null);
 
-	}
+        if (loan == null)
+            return "Loan not found";
 
-	@Override
-	public LoanDto updateLoan(int loanId, LoanDto dto) {
-		// TODO Auto-generated method stub
+        if ("CLOSED".equals(loan.getLoanStatus()))
+            return "Loan already closed";
 
-		Loan loan = loanRepo.findById(loanId).orElse(null);
+        loan.setLoanStatus("CLOSED");
 
-		if (loan == null) return null;
+        loanRepo.save(loan);
 
-		loan.setLoanAmount(dto.getLoanAmount());
-		loan.setInterestRate(dto.getInterestRate());
+        return "Loan closed successfully ✅";
+    }
 
-		loanRepo.save(loan);
+ 
+    @Override
+    public List<LoanDto> getActiveLoans(int customerId) {
 
-		return dto;
+        List<Loan> list = loanRepo.findByCustomerCustomerId(customerId);
 
-	}
+        List<LoanDto> result = new ArrayList<>();
 
-	@Override
-	public String deleteLoan(int loanId) {
-		// TODO Auto-generated method stub
+        for (Loan loan : list) {
 
-		loanRepo.deleteById(loanId);
+            if ("ACTIVE".equals(loan.getLoanStatus())) {
 
-		return "Loan deleted";
+                LoanDto dto = new LoanDto();
 
-	}
+                dto.setLoanId(loan.getLoanId());
+                dto.setLoanType(loan.getLoanType());
+                dto.setLoanAmount(loan.getLoanAmount());
+                dto.setInterestRate(loan.getInterestRate());
 
+                dto.setCustomerId(loan.getCustomer().getCustomerId());
+
+                result.add(dto);
+            }
+        }
+
+        return result;
+    }
 }

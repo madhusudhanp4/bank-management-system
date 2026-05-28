@@ -5,16 +5,18 @@ import java.util.List;
 import com.wipro.bank.dto.CustomerDto;
 
 public interface ICustomerService {
-	
-	
-	CustomerDto createCustomer(CustomerDto dto);
-	
-	CustomerDto getCustomerById(int customerId);
-	
-	List<CustomerDto> getAllCustomers();
-	
-	CustomerDto updateCustomer(int customerId, CustomerDto dto);
-	
-	String deleteCustomer(int customerId);
 
+    // Register customer
+    CustomerDto createCustomer(CustomerDto dto);
+
+    // View own profile
+    CustomerDto getCustomerById(int customerId);
+
+    // Update own details
+    CustomerDto updateCustomer(int customerId, CustomerDto dto);
+
+    List<CustomerDto> getAllCustomers();
+    
+    //delete
+    String deleteCustomer(int customerId); 
 }

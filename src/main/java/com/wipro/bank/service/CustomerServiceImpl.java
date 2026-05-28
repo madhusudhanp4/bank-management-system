@@ -13,101 +13,110 @@ import com.wipro.bank.repository.CustomerRepository;
 @Service
 public class CustomerServiceImpl implements ICustomerService {
 
+    @Autowired
+    private CustomerRepository repo;
 
-	@Autowired
-	private CustomerRepository repo;
+    @Override
+    public CustomerDto createCustomer(CustomerDto dto) {
 
-	@Override
-	public CustomerDto createCustomer(CustomerDto dto) {
-		// TODO Auto-generated method stub
+        Customer c = new Customer();
 
-		Customer c = new Customer();
+        c.setCustomerName(dto.getCustomerName());
+        c.setMobile(dto.getMobile());
+        c.setEmail(dto.getEmail());
+        c.setAddress(dto.getAddress());
 
-		c.setCustomerName(dto.getCustomerName());
-		c.setMobile(dto.getMobile());
-		c.setEmail(dto.getEmail());
-		c.setAddress(dto.getAddress());
+    
+        c.setStatus("ACTIVE");
 
-		Customer saved = repo.save(c);
+        Customer saved = repo.save(c);
 
-		dto.setCustomerId(saved.getCustomerId());
+        dto.setCustomerId(saved.getCustomerId());
 
-		return dto;
-	}
+        return dto;
+    }
 
+    @Override
+    public CustomerDto getCustomerById(int customerId) {
 
-	@Override
-	public CustomerDto getCustomerById(int customerId) {
-		// TODO Auto-generated method stub
-		Customer c = repo.findById(customerId).orElse(null);
+        Customer c = repo.findById(customerId).orElse(null);
 
-		if (c == null) return null;
+        if (c == null || "CLOSED".equals(c.getStatus()))
+            return null;
 
-		CustomerDto dto = new CustomerDto();
-		dto.setCustomerId(c.getCustomerId());
-		dto.setCustomerName(c.getCustomerName());
-		dto.setMobile(c.getMobile());
-		dto.setEmail(c.getEmail());
-		dto.setAddress(c.getAddress());
+        CustomerDto dto = new CustomerDto();
 
-		return dto;
+        dto.setCustomerId(c.getCustomerId());
+        dto.setCustomerName(c.getCustomerName());
+        dto.setMobile(c.getMobile());
+        dto.setEmail(c.getEmail());
+        dto.setAddress(c.getAddress());
 
+        return dto;
+    }
 
-	}
+    @Override
+    public List<CustomerDto> getAllCustomers() {
 
-	@Override
-	public List<CustomerDto> getAllCustomers() {
-		// TODO Auto-generated method stub
+        List<Customer> list = repo.findAll();
 
-		List<Customer> list = repo.findAll();
-		List<CustomerDto> result = new ArrayList<>();
+        List<CustomerDto> result = new ArrayList<>();
 
+        for (Customer c : list) {
 
-		for (Customer c : list) {
-			CustomerDto dto = new CustomerDto();
-			dto.setCustomerId(c.getCustomerId());
-			dto.setCustomerName(c.getCustomerName());
-			dto.setMobile(c.getMobile());
-			dto.setEmail(c.getEmail());
-			dto.setAddress(c.getAddress());
+            // ✅ skip closed customers if needed
+            if ("CLOSED".equals(c.getStatus()))
+                continue;
 
-			result.add(dto);
-		}
+            CustomerDto dto = new CustomerDto();
 
+            dto.setCustomerId(c.getCustomerId());
+            dto.setCustomerName(c.getCustomerName());
+            dto.setMobile(c.getMobile());
+            dto.setEmail(c.getEmail());
+            dto.setAddress(c.getAddress());
 
-		return result;
+            result.add(dto);
+        }
 
+        return result;
+    }
 
-	}
+    @Override
+    public CustomerDto updateCustomer(int customerId, CustomerDto dto) {
 
-	@Override
-	public CustomerDto updateCustomer(int customerId, CustomerDto dto) {
-		// TODO Auto-generated method stub
+        Customer c = repo.findById(customerId).orElse(null);
 
-		Customer c = repo.findById(customerId).orElse(null);
+        if (c == null || "CLOSED".equals(c.getStatus()))
+            return null;
 
-		if (c == null) return null;
+        c.setCustomerName(dto.getCustomerName());
+        c.setMobile(dto.getMobile());
+        c.setEmail(dto.getEmail());
+        c.setAddress(dto.getAddress());
 
-		c.setCustomerName(dto.getCustomerName());
-		c.setMobile(dto.getMobile());
-		c.setEmail(dto.getEmail());
-		c.setAddress(dto.getAddress());
+        repo.save(c);
 
-		repo.save(c);
-
-		return dto;
-	}
-
-	@Override
-	public String deleteCustomer(int customerId) {
-		// TODO Auto-generated method stub
-
-		repo.deleteById(customerId);
-		return "Deleted";
-
-	}
+        return dto;
+    }
 
 
+    @Override
+    public String deleteCustomer(int customerId) {
 
+        Customer c = repo.findById(customerId).orElse(null);
 
+        if (c == null)
+            return "Customer not found";
+
+        if ("CLOSED".equals(c.getStatus()))
+            return "Customer already closed";
+
+        // ✅ soft delete instead of removing data
+        c.setStatus("CLOSED");
+
+        repo.save(c);
+
+        return "Customer account closed successfully ✅";
+    }
 }

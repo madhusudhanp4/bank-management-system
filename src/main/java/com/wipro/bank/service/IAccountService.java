@@ -5,19 +5,24 @@ import java.util.List;
 import com.wipro.bank.dto.AccountDto;
 
 public interface IAccountService {
-	
 
+	// Open account
 	AccountDto createAccount(AccountDto dto);
 
-	AccountDto getAccountById(int accountId);
+	// Get account details (by account number - safer)
+	AccountDto getAccountByNumber(String accountNumber);
+	
 
 	List<AccountDto> getAllAccounts();
 
-	AccountDto updateAccount(int accountId, AccountDto dto);
+	// Check balance
+	double getBalancebyNumber(String accountNumber);
 
-	String deleteAccount(int accountId);
+	// Update limited details (optional)
+	AccountDto updateAccountDetails(String accountNumber, AccountDto dto);
 
-	double getBalance(String accountNumber);
+	String closeAccount(String accountNumber);
 
 
 }
+

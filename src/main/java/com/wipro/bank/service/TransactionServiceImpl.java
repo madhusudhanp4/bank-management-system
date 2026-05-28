@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.wipro.bank.dto.TransactionDto;
 import com.wipro.bank.entity.Account;
@@ -12,33 +13,42 @@ import com.wipro.bank.entity.Transaction;
 import com.wipro.bank.repository.AccountRepository;
 import com.wipro.bank.repository.TransactionRepository;
 
-public class TransactionServiceImpl implements ITransaction {
-
-
-	@Autowired
-	private AccountRepository accountRepo;
+@Service
+public class TransactionServiceImpl implements ITransactionService {
 
 
 	@Autowired
 	private TransactionRepository txnRepo;
+	
+
+	//Repo to interact with account
+	@Autowired
+	private AccountRepository accountRepo;
 
 
-
+	//Deposit money to account
 	@Override
 	public String deposit(String accountNumber, double amount) {
 		// TODO Auto-generated method stub
 
+		//Find account by account number
 		Account acc = accountRepo.findByAccountNumber(accountNumber);
 
 		if (acc == null) return "Account not found";
 
+		//If account found, increase the balance
 		acc.setBalance(acc.getBalance() + amount);
 		accountRepo.save(acc);
 
+		
+		//Creating the transaction record
 		Transaction txn = new Transaction();
 		txn.setTransactionType("DEPOSIT");
 		txn.setAmount(amount);
 		txn.setTransactionDate(LocalDate.now());
+
+		//Link the transaction to account
+		txn.setAccount(acc);
 
 		txnRepo.save(txn);
 
@@ -46,9 +56,10 @@ public class TransactionServiceImpl implements ITransaction {
 
 	}
 
+	//WITHDRAW MONEY FROM ACCOUNT
 	@Override
 	public String withdraw(String accountNumber, double amount) {
-		// TODO Auto-generated method stub
+	
 
 		Account acc = accountRepo.findByAccountNumber(accountNumber);
 
@@ -74,6 +85,8 @@ public class TransactionServiceImpl implements ITransaction {
 
 	}
 
+	
+	//GET TRANSACTION BY ACCOUNT NUMBER
 	@Override
 	public List<TransactionDto> getTransactionsByAccount(String accountNumber) {
 		// TODO Auto-generated method stub

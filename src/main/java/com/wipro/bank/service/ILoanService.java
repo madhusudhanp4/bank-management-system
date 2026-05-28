@@ -1,23 +1,22 @@
 package com.wipro.bank.service;
 
 import java.util.List;
-
 import com.wipro.bank.dto.LoanDto;
 
 public interface ILoanService {
 
+    //  Bank processes loan request (approve/reject)
+    String processLoan(LoanDto dto);
 
-	LoanDto createLoan(LoanDto dto);
+    //  Bank views all loans of a customer (history)
+    List<LoanDto> getCustomerLoans(int customerId);
 
-	LoanDto getLoanById(int loanId);
+    //  Bank checks customer's total active loan amount
+    double getTotalActiveLoanAmount(int customerId);
 
-	List<LoanDto> getAllLoans();
+    //  Bank marks loan as CLOSED (when customer repays)
+    String closeLoan(int loanId);
 
-	List<LoanDto> getLoansByCustomer(int customerId);
-
-	LoanDto updateLoan(int loanId, LoanDto dto);
-
-	String deleteLoan(int loanId);
-
-
+    //  Bank views only ACTIVE loans of a customer
+    List<LoanDto> getActiveLoans(int customerId);
 }

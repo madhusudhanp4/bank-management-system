@@ -1,5 +1,6 @@
 package com.wipro.bank.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,115 +15,132 @@ import com.wipro.bank.repository.CustomerRepository;
 @Service
 public class AccountServiceImpl implements IAccountService {
 
+    @Autowired
+    private AccountRepository accountRepo;
 
-	@Autowired
-	private AccountRepository accountRepo;
+    @Autowired
+    private CustomerRepository customerRepo;
 
-	@Autowired
-	private CustomerRepository customerRepo;
+  
+    @Override
+    public AccountDto createAccount(AccountDto dto) {
 
-	@Override
-	public AccountDto createAccount(AccountDto dto) {
-		// TODO Auto-generated method stub
+        // fetch customer
+        Customer customer = customerRepo.findById(dto.getCustomerId()).orElse(null);
 
-		Customer customer = customerRepo.findById(dto.getCustomerId()).orElse(null);
+        if (customer == null) return null;
 
-		if (customer == null) return null;
+        Account acc = new Account();
 
-		Account acc = new Account();
+        acc.setAccountNumber(dto.getAccountNumber());
+        acc.setAccountType(dto.getAccountType());
+        acc.setBalance(dto.getBalance());
+        acc.setBranchName(dto.getBranchName());
 
-		acc.setAccountNumber(dto.getAccountNumber());
-		acc.setAccountType(dto.getAccountType());
-		acc.setBalance(dto.getBalance());
-		acc.setBranchName(dto.getBranchName()); 
+        acc.setCustomer(customer);
+        acc.setStatus("ACTIVE"); //  optional field
 
-		Account saved = accountRepo.save(acc);
+        Account saved = accountRepo.save(acc);
 
-		dto.setAccountId(saved.getAccountId());
-		return dto;
+        dto.setAccountId(saved.getAccountId());
 
-	}
+        return dto;
+    }
 
-	@Override
-	public AccountDto getAccountById(int accountId) {
-		// TODO Auto-generated method stub
 
-		Account acc = accountRepo.findById(accountId).orElse(null);
+    @Override
+    public AccountDto getAccountByNumber(String accountNumber) {
 
-		if (acc == null) return null;
+        Account acc = accountRepo.findByAccountNumber(accountNumber);
 
-		AccountDto dto = new AccountDto();
+        if (acc == null || "CLOSED".equals(acc.getStatus()))
+            return null;
 
-		dto.setAccountId(acc.getAccountId());
-		dto.setAccountNumber(acc.getAccountNumber());
-		dto.setAccountType(acc.getAccountType());
-		dto.setBalance(acc.getBalance());
-		dto.setBranchName(acc.getBranchName());
+        AccountDto dto = new AccountDto();
 
-		return dto;
+        dto.setAccountId(acc.getAccountId());
+        dto.setAccountNumber(acc.getAccountNumber());
+        dto.setAccountType(acc.getAccountType());
+        dto.setBalance(acc.getBalance());
+        dto.setBranchName(acc.getBranchName());
 
-	}
+        dto.setCustomerId(acc.getCustomer().getCustomerId());
 
-	@Override
-	public List<AccountDto> getAllAccounts() {
-		// TODO Auto-generated method stub
+        return dto;
+    }
 
-		List<Account> list = accountRepo.findAll();
-		List<AccountDto> result = new java.util.ArrayList<>();
+ 
+    @Override
+    public List<AccountDto> getAllAccounts() {
 
-		for (Account acc : list) {
+        List<Account> list = accountRepo.findAll();
+        List<AccountDto> result = new ArrayList<>();
 
-			AccountDto dto = new AccountDto();
-			dto.setAccountId(acc.getAccountId());
-			dto.setAccountNumber(acc.getAccountNumber());
-			dto.setAccountType(acc.getAccountType());
-			dto.setBalance(acc.getBalance());
-			dto.setBranchName(acc.getBranchName());
+        for (Account acc : list) {
 
-			result.add(dto);
-		}
+            if ("CLOSED".equals(acc.getStatus()))
+                continue;
 
-		return result;
+            AccountDto dto = new AccountDto();
 
-	}
+            dto.setAccountId(acc.getAccountId());
+            dto.setAccountNumber(acc.getAccountNumber());
+            dto.setAccountType(acc.getAccountType());
+            dto.setBalance(acc.getBalance());
+            dto.setBranchName(acc.getBranchName());
 
-	@Override
-	public AccountDto updateAccount(int accountId, AccountDto dto) {
-		// TODO Auto-generated method stub
-		Account acc = accountRepo.findById(accountId).orElse(null);
+            dto.setCustomerId(acc.getCustomer().getCustomerId());
 
-		if (acc == null) return null;
+            result.add(dto);
+        }
 
-		acc.setAccountType(dto.getAccountType());
-		acc.setBalance(dto.getBalance());
-		acc.setBranchName(dto.getBranchName());
+        return result;
+    }
 
-		accountRepo.save(acc);
+    @Override
+    public double getBalancebyNumber(String accountNumber) {
 
-		return dto;
+        Account acc = accountRepo.findByAccountNumber(accountNumber);
 
-	}
+        if (acc == null) return 0;
 
-	@Override
-	public String deleteAccount(int accountId) {
-		// TODO Auto-generated method stub
+        return acc.getBalance();
+    }
 
-		accountRepo.deleteById(accountId);
 
-		return "Deleted";
+    @Override
+    public AccountDto updateAccountDetails(String accountNumber, AccountDto dto) {
 
-	}
+        Account acc = accountRepo.findByAccountNumber(accountNumber);
 
-	@Override
-	public double getBalance(String accountNumber) {
-		// TODO Auto-generated method stub
+        if (acc == null || "CLOSED".equals(acc.getStatus()))
+            return null;
 
-		Account acc = accountRepo.findByAccountNumber(accountNumber);
+        acc.setAccountType(dto.getAccountType());
+        acc.setBalance(dto.getBalance());
+        acc.setBranchName(dto.getBranchName());
 
-		if (acc == null) return 0;
+        accountRepo.save(acc);
 
-		return acc.getBalance();
+        return dto;
+    }
 
-	}
 
+    @Override
+    public String closeAccount(String accountNumber) {
+
+        Account acc = accountRepo.findByAccountNumber(accountNumber);
+
+        if (acc == null)
+            return "Account not found";
+
+        if ("CLOSED".equals(acc.getStatus()))
+            return "Already closed";
+
+        acc.setStatus("CLOSED");
+
+        accountRepo.save(acc);
+
+        return "Account closed successfully ✅";
+    }
 }

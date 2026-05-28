@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.wipro.bank.dto.TransactionDto;
 
-public interface ITransaction {
+public interface ITransactionService {
 
 
 	String deposit(String accountNumber, double amount);
