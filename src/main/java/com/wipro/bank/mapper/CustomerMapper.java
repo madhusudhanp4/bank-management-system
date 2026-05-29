@@ -9,7 +9,7 @@ public class CustomerMapper {
 
         CustomerDto dto = new CustomerDto();
 
-        dto.setCustomerId(c.getCustomerId());
+       // dto.setCustomerId(c.getCustomerId());
         dto.setCustomerName(c.getCustomerName());
         dto.setMobile(c.getMobile());
         dto.setEmail(c.getEmail());

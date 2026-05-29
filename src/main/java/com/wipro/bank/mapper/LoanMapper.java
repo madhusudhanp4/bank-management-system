@@ -10,7 +10,7 @@ public class LoanMapper {
 
         LoanDto dto = new LoanDto();
 
-        dto.setLoanId(loan.getLoanId());
+       // dto.setLoanId(loan.getLoanId());
         dto.setLoanType(loan.getLoanType());
         dto.setLoanAmount(loan.getLoanAmount());
         dto.setInterestRate(loan.getInterestRate());

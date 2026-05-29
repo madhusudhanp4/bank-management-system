@@ -9,11 +9,12 @@ public class TransactionMapper {
 
         TransactionDto dto = new TransactionDto();
 
-        dto.setTransactionId(txn.getTransactionId());
+        //dto.setTransactionId(txn.getTransactionId());
         dto.setTransactionType(txn.getTransactionType());
         dto.setAmount(txn.getAmount());
         dto.setTransactionDate(txn.getTransactionDate());
         dto.setAccountNumber(txn.getAccount().getAccountNumber());
+        dto.setStatus(txn.getStatus());
 
         return dto;
     }

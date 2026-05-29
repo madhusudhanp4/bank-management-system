@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,11 +13,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-//@AllArgsConstructor
+@AllArgsConstructor
 
 public class TransactionDto {
 
-	private int transactionId;
+	//private int transactionId;
 
 	@NotBlank(message = "Transaction type is required")
 	@Pattern(regexp = "^(DEPOSIT|WITHDRAW)$",
@@ -34,5 +35,6 @@ public class TransactionDto {
 	private String accountNumber;
 
 
+	private String status;
 
 }

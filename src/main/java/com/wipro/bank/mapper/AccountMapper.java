@@ -10,12 +10,13 @@ public class AccountMapper {
 
         AccountDto dto = new AccountDto();
 
-        dto.setAccountId(acc.getAccountId());
-        dto.setAccountNumber(acc.getAccountNumber());
+       // dto.setAccountId(acc.getAccountId());
+       // dto.setAccountNumber(acc.getAccountNumber());
         dto.setAccountType(acc.getAccountType());
         dto.setBalance(acc.getBalance());
         dto.setBranchName(acc.getBranchName());
         dto.setCustomerId(acc.getCustomer().getCustomerId());
+        dto.setStatus(acc.getStatus());
 
         return dto;
     }

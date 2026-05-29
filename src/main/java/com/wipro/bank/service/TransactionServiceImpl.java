@@ -40,6 +40,7 @@ public class TransactionServiceImpl implements ITransactionService {
 		Transaction txn = new Transaction();
 		txn.setTransactionType("DEPOSIT");
 		txn.setAmount(amount);
+		txn.setStatus("SUCCESS");
 
 		// System sets transaction date automatically
 		txn.setTransactionDate(LocalDate.now());
@@ -67,6 +68,15 @@ public class TransactionServiceImpl implements ITransactionService {
 		 * Business rule: cannot withdraw more than available balance
 		 */
 		if (acc.getBalance() < amount) {
+			Transaction txn = new Transaction();
+			txn.setTransactionType("WITHDRAW");
+			txn.setAmount(amount);
+			
+			txn.setTransactionDate(LocalDate.now());
+			txn.setAccount(acc);
+			txn.setStatus("FAILED");
+			txnRepo.save(txn);
+			
 			return "Insufficient balance";
 		}
 
@@ -81,6 +91,7 @@ public class TransactionServiceImpl implements ITransactionService {
 		txn.setTransactionDate(LocalDate.now());
 
 		txn.setAccount(acc);
+		txn.setStatus("SUCCESS");
 
 		txnRepo.save(txn);
 

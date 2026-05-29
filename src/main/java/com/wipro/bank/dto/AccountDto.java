@@ -3,7 +3,7 @@ package com.wipro.bank.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.PositiveOrZero;
-import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,13 +11,13 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-//@AllArgsConstructor
+@AllArgsConstructor
 
 public class AccountDto {
 
-	private int accountId;
+	//private int accountId;
 
-	private String accountNumber;
+	//private String accountNumber;
 
 	@NotBlank(message = "Account type is required")
 	@Pattern(regexp = "^(SAVINGS|CURRENT|LOAN)$", message = "Account type must be SAVINGS, CURRENT or LOAN")
