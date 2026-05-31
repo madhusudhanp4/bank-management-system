@@ -26,14 +26,14 @@ public class CustomerController {
 
     //Create customer
     @PostMapping("/create")
-    public CustomerDto create(@Valid @RequestBody CustomerDto dto) {
+    public String create(@Valid @RequestBody CustomerDto dto) {
         return service.createCustomer(dto);
     }
 
     // Get customer by ID
-    @GetMapping("/{id}")
-    public CustomerDto getById(@PathVariable int id) {
-        return service.getCustomerById(id);
+    @GetMapping("/{customerId}")
+    public CustomerDto getById(@PathVariable int customerId) {
+        return service.getCustomerById(customerId);
     }
 
     // Get all customers
@@ -44,7 +44,7 @@ public class CustomerController {
 
     // Update customer
     @PutMapping("/update/{id}")
-    public CustomerDto update(@PathVariable int id,@Valid  @RequestBody CustomerDto dto) {
+    public String update(@PathVariable int id,@Valid  @RequestBody CustomerDto dto) {
         return service.updateCustomer(id, dto);
     }
 

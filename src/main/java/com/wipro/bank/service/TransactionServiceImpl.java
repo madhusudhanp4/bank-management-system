@@ -34,16 +34,14 @@ public class TransactionServiceImpl implements ITransactionService {
 
 
 		acc.setBalance(acc.getBalance() + amount);
+		
 		accountRepo.save(acc);
-
 
 		Transaction txn = new Transaction();
 		txn.setTransactionType("DEPOSIT");
 		txn.setAmount(amount);
-		txn.setStatus("SUCCESS");
-
-		// System sets transaction date automatically
 		txn.setTransactionDate(LocalDate.now());
+		txn.setStatus("SUCCESS");
 
 		// Link transaction with existing account
 		txn.setAccount(acc);
@@ -61,20 +59,23 @@ public class TransactionServiceImpl implements ITransactionService {
 	public String withdraw(String accountNumber, double amount) {
 
 		Account acc = accountRepo.findByAccountNumber(accountNumber);
-
+			
 		if (acc == null) return "Account not found";
 
-		/*
+		/**
 		 * Business rule: cannot withdraw more than available balance
 		 */
 		if (acc.getBalance() < amount) {
+			
 			Transaction txn = new Transaction();
+			
 			txn.setTransactionType("WITHDRAW");
 			txn.setAmount(amount);
 			
 			txn.setTransactionDate(LocalDate.now());
-			txn.setAccount(acc);
 			txn.setStatus("FAILED");
+			txn.setAccount(acc);
+			
 			txnRepo.save(txn);
 			
 			return "Insufficient balance";
@@ -104,12 +105,12 @@ public class TransactionServiceImpl implements ITransactionService {
 
 		List<Transaction> list = txnRepo.findByAccountAccountNumber(accountNumber);
 
-		List<TransactionDto> result = new ArrayList<>();
+		List<TransactionDto> dtoList = new ArrayList<>();
 
 		for (Transaction t : list) {
-			result.add(TransactionMapper.toDto(t));
+			dtoList.add(TransactionMapper.toDto(t));
 		}
 
-		return result;
+		return dtoList;
 	}
 }

@@ -5,19 +5,21 @@ import com.wipro.bank.entity.Customer;
 
 public class CustomerMapper {
 
+	//Entity -> DTO
     public static CustomerDto toDto(Customer c) {
 
         CustomerDto dto = new CustomerDto();
-
-       // dto.setCustomerId(c.getCustomerId());
         dto.setCustomerName(c.getCustomerName());
         dto.setMobile(c.getMobile());
         dto.setEmail(c.getEmail());
         dto.setAddress(c.getAddress());
+        dto.setStatus(c.getStatus());
 
         return dto;
     }
 
+    
+    //DTO -> Entity
     public static Customer toEntity(CustomerDto dto) {
 
         Customer c = new Customer();
@@ -26,7 +28,7 @@ public class CustomerMapper {
         c.setMobile(dto.getMobile());
         c.setEmail(dto.getEmail());
         c.setAddress(dto.getAddress());
-        c.setStatus("ACTIVE");
+        c.setStatus(dto.getStatus());
 
         return c;
     }

@@ -34,26 +34,24 @@ public class LoanServiceImpl implements ILoanService {
             return "Customer not found";
 
         // Fetch all loans of the customer
-        List<Loan> list = loanRepo.findByCustomerCustomerId(dto.getCustomerId());
+        List<Loan> activeLoans = loanRepo.findByCustomerCustomerIdAndLoanStatus(dto.getCustomerId(),("ACTIVE"));
 
+
+        // Business rule: max active loans
+        if (activeLoans.size() >= 3)
+            return "Loan Rejected: Too many active loans";
+        
         double totalLoan = 0;
-        int activeLoans = 0;
-
+ 
         // Calculate active loans and total amount
-        for (Loan loan : list) {
-            if ("ACTIVE".equals(loan.getLoanStatus())) {
-                totalLoan += loan.getLoanAmount();
-                activeLoans++;
-            }
+        for (Loan loan : activeLoans) {
+            totalLoan += loan.getLoanAmount();
         }
 
         // Business rule: total loan limit
-        if (totalLoan > 500000)
-            return "Loan Rejected: High existing loans";
+        if (totalLoan + dto.getLoanAmount() > 50000)
+            return "Loan limit exceeded";
 
-        // Business rule: max active loans
-        if (activeLoans >= 3)
-            return "Loan Rejected: Too many active loans";
 
         // Convert DTO to Entity before saving
         Loan loan = LoanMapper.toEntity(dto, customer);
@@ -68,16 +66,16 @@ public class LoanServiceImpl implements ILoanService {
     @Override
     public List<LoanDto> getLoanHistory(int customerId) {
 
-        List<Loan> list = loanRepo.findByCustomerCustomerId(customerId);
-        List<LoanDto> result = new ArrayList<>();
+        List<Loan> loans = loanRepo.findByCustomerCustomerId(customerId);
+        List<LoanDto> dtoList = new ArrayList<>();
 
-        for (Loan loan : list) {
+        for (Loan loan : loans) {
 
             // Convert entity to DTO
-            result.add(LoanMapper.toDto(loan));
+            dtoList.add(LoanMapper.toDto(loan));
         }
 
-        return result;
+        return dtoList;
     }
 
     
@@ -100,7 +98,7 @@ public class LoanServiceImpl implements ILoanService {
     }
 
     
-    // Close loan (only after repayment - logic can be enhanced later)
+    // Close loan (only after repayments )
     @Override
     public String closeLoan(int loanId) {
 
@@ -108,9 +106,6 @@ public class LoanServiceImpl implements ILoanService {
 
         if (loan == null)
             return "Loan not found";
-
-        if ("CLOSED".equals(loan.getLoanStatus()))
-            return "Loan already closed";
 
         // Updating existing entity status (not creating new one)
         loan.setLoanStatus("CLOSED");

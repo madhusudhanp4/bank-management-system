@@ -6,11 +6,10 @@ import com.wipro.bank.entity.Customer;
 
 public class LoanMapper {
 
+	//Entity -> DTO
     public static LoanDto toDto(Loan loan) {
 
         LoanDto dto = new LoanDto();
-
-       // dto.setLoanId(loan.getLoanId());
         dto.setLoanType(loan.getLoanType());
         dto.setLoanAmount(loan.getLoanAmount());
         dto.setInterestRate(loan.getInterestRate());
@@ -20,6 +19,7 @@ public class LoanMapper {
         return dto;
     }
 
+    //DTO to Entity
     public static Loan toEntity(LoanDto dto, Customer customer) {
 
         Loan loan = new Loan();

@@ -17,8 +17,6 @@ import lombok.Setter;
 
 public class TransactionDto {
 
-	//private int transactionId;
-
 	@NotBlank(message = "Transaction type is required")
 	@Pattern(regexp = "^(DEPOSIT|WITHDRAW)$",
 	message = "Transaction type must be DEPOSIT or WITHDRAW")
@@ -28,8 +26,6 @@ public class TransactionDto {
 	@Positive(message = "Amount must be greater than 0")
 	private double amount;
 
-
-	private LocalDate transactionDate;
 
 	@NotBlank(message = "Account number is required")
 	private String accountNumber;

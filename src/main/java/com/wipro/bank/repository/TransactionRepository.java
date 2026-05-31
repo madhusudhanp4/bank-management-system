@@ -16,4 +16,5 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
 	 * Helps show transaction history and track account activity
 	 */
 	List<Transaction> findByAccountAccountNumber(String accountNumber);
+	
 }

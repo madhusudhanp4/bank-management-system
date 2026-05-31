@@ -33,9 +33,8 @@ public class Account {
 	private String accountType;
 	private double balance;
 	private String branchName;
-	
-
 	private String status;
+	
 	
 	//Many accounts belong to one customer
     @ManyToOne

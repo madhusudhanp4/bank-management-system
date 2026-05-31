@@ -7,19 +7,15 @@ import com.wipro.bank.dto.AccountDto;
 public interface IAccountService {
 
 	// Open account
-	AccountDto createAccount(AccountDto dto);
+	String	createAccount(AccountDto dto);
 
 	// Get account details (by account number - safer)
-	AccountDto getAccountByNumber(String accountNumber);
+	AccountDto getAccount(String accountNumber);
 	
-
 	List<AccountDto> getAllAccounts();
 
 	// Check balance
 	double getBalancebyNumber(String accountNumber);
-
-	// Update limited details (optional)
-	AccountDto updateAccountDetails(String accountNumber, AccountDto dto);
 
 	String closeAccount(String accountNumber);
 

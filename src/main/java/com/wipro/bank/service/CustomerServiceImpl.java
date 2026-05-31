@@ -20,15 +20,14 @@ public class CustomerServiceImpl implements ICustomerService {
     
     //CREATE a new customer with default ACTIVE status
     @Override
-    public CustomerDto createCustomer(CustomerDto dto) {
+    public String createCustomer(CustomerDto dto) {
 
     	// Convert incoming DTO to Entity before saving to DB
         Customer customer = CustomerMapper.toEntity(dto);
 
-        Customer saved = repo.save(customer);
+        repo.save(customer);
 
-        return CustomerMapper.toDto(saved);  // Convert Entity back to DTO for response	
-    }
+        return "Customer Profile Created Successfully" ;    }
 
     
     //FETCH customer by ID if not closed
@@ -67,7 +66,7 @@ public class CustomerServiceImpl implements ICustomerService {
     
     //UPDATE customer details
     @Override
-    public CustomerDto updateCustomer(int customerId, CustomerDto dto) {
+    public String updateCustomer(int customerId, CustomerDto dto) {
 
         Customer c = repo.findById(customerId).orElse(null);
 
@@ -75,7 +74,7 @@ public class CustomerServiceImpl implements ICustomerService {
             return null;
 
 
-		/*
+		/**
 		 * Since this is UPDATE operation, 
 		 * we modify existing entity instead of creating
 		 * a new one using mapper 
@@ -88,7 +87,9 @@ public class CustomerServiceImpl implements ICustomerService {
 
         Customer updated = repo.save(c);
 
-        return CustomerMapper.toDto(updated); // Convert updated Entity to DTO
+        CustomerMapper.toDto(updated); // Convert updated Entity to DTO
+        
+        return "Profile updated successfully";
     }
 
     

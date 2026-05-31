@@ -6,12 +6,10 @@ import com.wipro.bank.entity.Customer;
 
 public class AccountMapper {
 
+	//Entity sends data to DTO (for Create or Update DDL operations)
     public static AccountDto toDto(Account acc) {
 
         AccountDto dto = new AccountDto();
-
-       // dto.setAccountId(acc.getAccountId());
-       // dto.setAccountNumber(acc.getAccountNumber());
         dto.setAccountType(acc.getAccountType());
         dto.setBalance(acc.getBalance());
         dto.setBranchName(acc.getBranchName());
@@ -21,6 +19,8 @@ public class AccountMapper {
         return dto;
     }
 
+    
+    //DTO retrieves or gets data from Entity (for GET operations / to display data)
     public static Account toEntity(AccountDto dto, Customer customer) {
 
         Account acc = new Account();
@@ -30,7 +30,7 @@ public class AccountMapper {
         acc.setBranchName(dto.getBranchName());
 
         acc.setCustomer(customer);
-        acc.setStatus("ACTIVE");
+        acc.setStatus(dto.getStatus());
 
         return acc;
     }

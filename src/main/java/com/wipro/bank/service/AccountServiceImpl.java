@@ -26,11 +26,11 @@ public class AccountServiceImpl implements IAccountService {
 
 	//CREATE NEW ACCOUNT FOR EXISTING CUSTOMER
 	@Override
-	public AccountDto createAccount(AccountDto dto) {
+	public String createAccount(AccountDto dto) {
 
 		Customer customer = customerRepo.findById(dto.getCustomerId()).orElse(null);
 
-		if (customer == null) return null; //Customer doesnot exist
+		if (customer == null) return null; //Customer doesn't exist
 
 		// use mapper
 		Account acc = AccountMapper.toEntity(dto, customer);
@@ -41,13 +41,15 @@ public class AccountServiceImpl implements IAccountService {
 
 		Account saved = accountRepo.save(acc);
 
-		return AccountMapper.toDto(saved);
+		AccountMapper.toDto(saved);
+		
+		return "Account created successfully";
 	}
 
 
 	//FETCH account details using account number
 	@Override
-	public AccountDto getAccountByNumber(String accountNumber) {
+	public AccountDto getAccount(String accountNumber) {
 
 		Account acc = accountRepo.findByAccountNumber(accountNumber);
 
@@ -62,18 +64,15 @@ public class AccountServiceImpl implements IAccountService {
 	@Override
 	public List<AccountDto> getAllAccounts() {
 
-		List<Account> list = accountRepo.findAll();
-		List<AccountDto> result = new ArrayList<>();
+		List<Account> accounts = accountRepo.findAll();
+		List<AccountDto> dtoList = new ArrayList<>();
 
-		for (Account acc : list) {
+		for (Account acc : accounts) {
 
-			if ("CLOSED".equals(acc.getStatus()))
-				continue;
-
-			result.add(AccountMapper.toDto(acc)); 
+			dtoList.add(AccountMapper.toDto(acc));
 		}
 
-		return result;
+		return dtoList;
 	}
 
 
@@ -90,32 +89,8 @@ public class AccountServiceImpl implements IAccountService {
 	}
 
 
-	//Update account details
-	@Override
-	public AccountDto updateAccountDetails(String accountNumber, AccountDto dto) {
-
-		Account acc = accountRepo.findByAccountNumber(accountNumber);
-
-		if (acc == null || "CLOSED".equals(acc.getStatus()))
-			return null;
-
-		/*
-		 * Since account already exists,
-		 * update only required fields
-		 * mapper is not used here to avoid overwriting existing data
-		 * 
-		 */
-
-		acc.setAccountType(dto.getAccountType());
-		acc.setBalance(dto.getBalance());
-		acc.setBranchName(dto.getBranchName());
-
-		Account updated = accountRepo.save(acc);
-
-		return AccountMapper.toDto(updated);
-	}
-
-
+	
+	
 	//Close account
 	@Override
 	public String closeAccount(String accountNumber) {
@@ -125,9 +100,7 @@ public class AccountServiceImpl implements IAccountService {
 		if (acc == null)
 			return "Account not found";
 
-		if ("CLOSED".equals(acc.getStatus()))
-			return "Already closed";
-
+		
 		acc.setStatus("CLOSED");
 
 		accountRepo.save(acc);

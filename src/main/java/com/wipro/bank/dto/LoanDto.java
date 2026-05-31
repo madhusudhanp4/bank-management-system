@@ -25,11 +25,10 @@ public class LoanDto {
 	@Positive(message = "Interest rate must be greater than 0")
 	private double interestRate;
 	
+	private String loanStatus; 
 	
 	//to link loan with customer
 	private int customerId;
-	
-	private String loanStatus; 
 
 
 

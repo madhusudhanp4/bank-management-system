@@ -7,13 +7,13 @@ import com.wipro.bank.dto.CustomerDto;
 public interface ICustomerService {
 
     // Register customer
-    CustomerDto createCustomer(CustomerDto dto);
+    String createCustomer(CustomerDto dto);
 
     // View own profile
     CustomerDto getCustomerById(int customerId);
 
     // Update own details
-    CustomerDto updateCustomer(int customerId, CustomerDto dto);
+    String updateCustomer(int customerId, CustomerDto dto);
 
     List<CustomerDto> getAllCustomers();
     

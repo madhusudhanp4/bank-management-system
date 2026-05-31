@@ -16,8 +16,7 @@ import lombok.Setter;
 
 public class CustomerDto {
 
-	//private int customerId;
-
+	
 	@NotBlank(message = "Customer name is required")
 	@Size(min = 4, message = "Customer name must be at least 4 characters")
 	private String customerName;
@@ -32,5 +31,5 @@ public class CustomerDto {
 	@Size(min = 6, message = "Customer name must be at least 4 characters")
 	private String address;
 
-
+	private String status;
 }
