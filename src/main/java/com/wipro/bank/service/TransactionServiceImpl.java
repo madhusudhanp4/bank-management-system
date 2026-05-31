@@ -44,7 +44,7 @@ public class TransactionServiceImpl implements ITransactionService {
 		txn.setStatus("SUCCESS");
 
 		// Link transaction with existing account
-		txn.setAccount(acc);
+		txn.setAccountNumber(accountNumber);
 
 		txnRepo.save(txn);
 
@@ -74,7 +74,7 @@ public class TransactionServiceImpl implements ITransactionService {
 			
 			txn.setTransactionDate(LocalDate.now());
 			txn.setStatus("FAILED");
-			txn.setAccount(acc);
+			txn.setAccountNumber(accountNumber);
 			
 			txnRepo.save(txn);
 			
@@ -91,7 +91,7 @@ public class TransactionServiceImpl implements ITransactionService {
 
 		txn.setTransactionDate(LocalDate.now());
 
-		txn.setAccount(acc);
+		txn.setAccountNumber(accountNumber);
 		txn.setStatus("SUCCESS");
 
 		txnRepo.save(txn);
