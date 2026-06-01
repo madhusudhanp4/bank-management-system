@@ -36,7 +36,7 @@ public class Transaction {
 	//Many transactions belong to one account
 	@ManyToOne
 	@JoinColumn(name = "account_id")
-	private String accountNumber;
+	private Account account;
 
 
 

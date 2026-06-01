@@ -15,6 +15,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
 	 * Used to get all transactions of a specific account 
 	 * Helps show transaction history and track account activity
 	 */
-	List<Transaction> findByAccountAccountNumber(String accountNumber);
+	List<Transaction> findByAccount(String accountNumber);
 	
 }

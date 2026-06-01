@@ -44,7 +44,7 @@ public class TransactionServiceImpl implements ITransactionService {
 		txn.setStatus("SUCCESS");
 
 		// Link transaction with existing account
-		txn.setAccountNumber(accountNumber);
+		txn.setAccount(acc);
 
 		txnRepo.save(txn);
 
@@ -74,7 +74,7 @@ public class TransactionServiceImpl implements ITransactionService {
 			
 			txn.setTransactionDate(LocalDate.now());
 			txn.setStatus("FAILED");
-			txn.setAccountNumber(accountNumber);
+			txn.setAccount(acc);
 			
 			txnRepo.save(txn);
 			
@@ -91,7 +91,7 @@ public class TransactionServiceImpl implements ITransactionService {
 
 		txn.setTransactionDate(LocalDate.now());
 
-		txn.setAccountNumber(accountNumber);
+		txn.setAccount(acc);
 		txn.setStatus("SUCCESS");
 
 		txnRepo.save(txn);
@@ -103,7 +103,7 @@ public class TransactionServiceImpl implements ITransactionService {
 	@Override
 	public List<TransactionDto> getTransactionsByAccount(String accountNumber) {
 
-		List<Transaction> list = txnRepo.findByAccountAccountNumber(accountNumber);
+		List<Transaction> list = txnRepo.findByAccount(accountNumber);
 
 		List<TransactionDto> dtoList = new ArrayList<>();
 
