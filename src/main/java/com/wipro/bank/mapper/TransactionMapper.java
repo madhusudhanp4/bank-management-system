@@ -20,19 +20,17 @@ public class TransactionMapper {
     }
     
     //DTO -> Entity
-    public static Transaction toEntity(TransactionDto dto) {
-    	
-    	Account account = new Account();
-    	
-    	Transaction ts = new Transaction();
-    	ts.setTransactionType(dto.getTransactionType());
-    	ts.setAmount(dto.getAmount());
-    	
-    	account.setAccountNumber(dto.getAccountNumber());
-    	ts.setAccount(account);
-    	
-    	ts.setStatus(dto.getStatus());
-    	
-		return ts;
+    public static Transaction toEntity(TransactionDto dto, Account account) {
+
+        Transaction ts = new Transaction();
+
+        ts.setTransactionType(dto.getTransactionType());
+        ts.setAmount(dto.getAmount());
+        ts.setStatus(dto.getStatus());
+
+        ts.setAccount(account);
+
+        return ts;
     }
+
 }
